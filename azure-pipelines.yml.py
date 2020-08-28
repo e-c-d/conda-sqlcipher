@@ -18,12 +18,12 @@ yaml.add_representer(
 def define_conda_jobs():
     # fmt: off
     ARCH = [
-        # "32",
+        "32",
         "64",
     ]
     OPENSSL = {
         "1_0": ">=1.0,<1.1",
-        # "1_1": ">=1.1,<1.2",
+        "1_1": ">=1.1,<1.2",
     }
     BUILD_TYPE = [
         # "Debug", # debug mode, disable optimization
