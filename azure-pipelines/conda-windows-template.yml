@@ -15,7 +15,7 @@ parameters:
 jobs:
 - job:
   variables:
-    buildname: "freerdp-conda-ssl${{ parameters.openssl_version_name }}-\
+    buildname: "sqlcipher-conda-ssl${{ parameters.openssl_version_name }}-\
       win${{ parameters.arch }}-${{ parameters.build_type }}"
     DOWNLOAD_CACHE_FOLDER: "$(Pipeline.Workspace)/.download_cache"
     SQLCIPHER_SHA256: "0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148"
@@ -109,22 +109,17 @@ jobs:
         -DSQLITE_ENABLE_STAT4=1 ^
         -DSQLITE_ENABLE_UPDATE_DELETE_LIMIT=1 ^
         -DSQLITE_SOUNDEX=1 ^
-        -DSQLITE_TEMP_STORE=3 ^
         -DSQLITE_USE_URI=1 ^
         -I%CONDA_PREFIX%\Library\include
-      set NMAKE_OPTS=NO_TCL=1 USE_CRT_DLL=1 WIN32HEAP=1 LTLIBPATHS=^"/LIBPATH:%CONDA_PREFIX%\Library\lib^" LTLIBS=^"libeay32.lib ssleay32.lib^"
+
+      set NMAKE_OPTS=NO_TCL=1 USE_CRT_DLL=1 WIN32HEAP=1 ^
+        LTLIBPATHS=^"/LIBPATH:%CONDA_PREFIX%\Library\lib^" ^
+        LTLIBS=^"libeay32.lib ssleay32.lib^"
 
       nmake /f ..\makefile.msc sqlite3.c TOP=.. %NMAKE_OPTS%
       nmake /f ..\makefile.msc sqlite3.dll TOP=.. %NMAKE_OPTS%
+      nmake /f ..\makefile.msc sqlite3.exe TOP=.. %NMAKE_OPTS%
     displayName: Build sqlcipher
-
-      # rem cl sqlite3.c -link -dll -out:sqlite3.dll %OPTS% -O2
-      # rem cl shell.c sqlite3.c -Fesqlite3.exe %OPTS% -O2
-
-      # nmake /f makefile.msc sqlite3.c %NMAKE_OPTS%
-      # nmake /f makefile.msc sqlite3.dll %NMAKE_OPTS%
-      # nmake /f makefile.msc sqlite3.lib %NMAKE_OPTS%
-      # nmake /f makefile.msc sqlite3.exe %NMAKE_OPTS%
 
   - script: |
       dir /a-D /S /B sqlcipher
@@ -133,7 +128,7 @@ jobs:
   - task: CopyFiles@2
     inputs:
       sourceFolder: '$(Build.SourcesDirectory)'
-      contents: "sqlcipher/build/*?(.exe|.dll|.pdb|.lib|.exp|.manifest)"
+      contents: "sqlcipher/build/sqlite*?(.exe|.dll|.pdb|.lib|.exp|.manifest)"
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
       flattenFolders: true
     displayName: Copy files to artifact staging directory
