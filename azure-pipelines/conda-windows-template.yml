@@ -17,6 +17,9 @@ jobs:
   variables:
     buildname: "freerdp-conda-ssl${{ parameters.openssl_version_name }}-\
       win${{ parameters.arch }}-${{ parameters.build_type }}"
+  variables:
+    DOWNLOAD_CACHE_FOLDER: "$(Pipeline.Workspace)\.download_cache"
+
   displayName: "Build sqlcipher \
     with OpenSSL ${{ parameters.openssl_version_name }} \
     for architecture ${{ parameters.arch }}, \
@@ -50,16 +53,19 @@ jobs:
     displayName: Source cache
 
   - powershell: |
-      $sha256 = "4172CC6E5A79D36E178D36BD5CC467A938E08368952659BCD95ECCBAF0FA4AD4"
-      $url = "http://deb.debian.org/debian/pool/main/s/sqlcipher/sqlcipher_3.4.1.orig.tar.gz"
-      if (Test-Path "sqlcipher.tar.gz") {
-         Rename-Item "sqlcipher.tar.gz" "sqlcipher.tar.gz.tmp"
+      $sha256 = "0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148"
+      $url = "http://github.com/sqlcipher/sqlcipher/archive/v4.4.0.tar.gz"
+
+      $cached = "${{ DOWNLOAD_CACHE_FOLDER }}\sqlcipher.tar.gz"
+      if (Test-Path "$cached") {
+         Copy-Item "$cached" "sqlcipher.tar.gz.tmp"
       } else {
          Invoke-WebRequest -OutFile "sqlcipher.tar.gz.tmp" -Uri "$url"
       }
 
       if ((Get-FileHash "sqlcipher.tar.gz.tmp" -Algorithm SHA256).Hash -eq $sha256) {
          Rename-Item "sqlcipher.tar.gz.tmp" "sqlcipher.tar.gz"
+         Copy-Item "sqlcipher.tar.gz" $cached
       } else {
          "Hash check failed" | Write-Debug
          Exit 1
