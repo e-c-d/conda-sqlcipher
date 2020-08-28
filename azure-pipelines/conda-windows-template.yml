@@ -111,7 +111,7 @@ jobs:
         -DSQLITE_SOUNDEX=1 ^
         -DSQLITE_TEMP_STORE=3 ^
         -DSQLITE_USE_URI=1 ^
-        -I "${CONDA_PREFIX}"/include
+        -I%CONDA_PREFIX%\include
       set NMAKE_OPTS=NO_TCL=1 USE_CRT_DLL=1 WIN32HEAP=1
 
       nmake /f ..\makefile.msc sqlite3.c TOP=.. %NMAKE_OPTS%
