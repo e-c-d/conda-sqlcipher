@@ -128,7 +128,8 @@ jobs:
   - task: CopyFiles@2
     inputs:
       sourceFolder: '$(Build.SourcesDirectory)'
-      contents: "sqlcipher/build/sqlite*?(.exe|.dll|.pdb|.lib|.exp|.manifest)"
+      contents: |
+        sqlcipher/build/sqlite3?(.exe|.dll|.pdb|.lib|.exp|.manifest|.h)
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
       flattenFolders: true
     displayName: Copy files to artifact staging directory
