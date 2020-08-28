@@ -78,17 +78,9 @@ jobs:
       cleanDestinationFolder: true
     displayName: Extract
 
-  - script: |
-      dir /a-D /S /B .
-    displayName: List files 1
-
   - powershell: |
       Get-ChildItem -Path tmp-source\sqlcipher-* | Move-Item -Destination sqlcipher
     displayName: Rename
-
-  - script: |
-      dir /a-D /S /B .
-    displayName: List files 2
 
   # - script: |
   #     call activate chihiro
@@ -99,6 +91,8 @@ jobs:
       call activate chihiro
       call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
       cd sqlcipher
+      md build
+      cd build
       set CC=cl.exe
       set CXX=cl.exe
       set OPTS= ^
@@ -119,10 +113,12 @@ jobs:
         -DSQLITE_USE_URI
       set NMAKE_OPTS=NO_TCL=1 USE_CRT_DLL=1 WIN32HEAP=1
 
-      nmake /f makefile.msc sqlite3.c %NMAKE_OPTS%
-      cl sqlite3.c -link -dll -out:sqlite3.dll %OPTS% -O2
-      cl shell.c sqlite3.c -Fesqlite3.exe
+      nmake /f ..\makefile.msc sqlite3.c TOP=.. %NMAKE_OPTS%
+      nmake /f ..\makefile.msc sqlite3.dll TOP=.. %NMAKE_OPTS%
     displayName: Build sqlcipher
+
+      # rem cl sqlite3.c -link -dll -out:sqlite3.dll %OPTS% -O2
+      # rem cl shell.c sqlite3.c -Fesqlite3.exe %OPTS% -O2
 
       # nmake /f makefile.msc sqlite3.c %NMAKE_OPTS%
       # nmake /f makefile.msc sqlite3.dll %NMAKE_OPTS%
@@ -136,7 +132,7 @@ jobs:
   - task: CopyFiles@2
     inputs:
       sourceFolder: '$(Build.SourcesDirectory)'
-      contents: "sqlcipher/*?(.exe|.dll|.pdb|.lib|.exp|.manifest)"
+      contents: "sqlcipher/build/*?(.exe|.dll|.pdb|.lib|.exp|.manifest)"
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
       flattenFolders: true
     displayName: Copy files to artifact staging directory
