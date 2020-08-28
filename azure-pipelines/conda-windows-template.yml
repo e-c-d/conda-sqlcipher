@@ -55,7 +55,7 @@ jobs:
       $sha256 = "0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148"
       $url = "http://github.com/sqlcipher/sqlcipher/archive/v4.4.0.tar.gz"
 
-      $cached = "${{ DOWNLOAD_CACHE_FOLDER }}\sqlcipher.tar.gz"
+      $cached = "$(DOWNLOAD_CACHE_FOLDER)\sqlcipher.tar.gz"
       if (Test-Path "$cached") {
          Copy-Item "$cached" "sqlcipher.tar.gz.tmp"
       } else {
