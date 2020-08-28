@@ -1,0 +1,126 @@
+parameters:
+- name: build_type
+  type: string
+  default: "Release"
+- name: arch
+  type: string
+  default: "64"
+- name: openssl_version_name
+  type: string
+  default: "1_1"
+- name: openssl_version
+  type: string
+  default: ">=1.1,<1.2"
+
+jobs:
+- job:
+  variables:
+    buildname: "freerdp-conda-ssl${{ parameters.openssl_version_name }}-\
+      win${{ parameters.arch }}-${{ parameters.build_type }}"
+  displayName: "Build sqlcipher \
+    with OpenSSL ${{ parameters.openssl_version_name }} \
+    for architecture ${{ parameters.arch }}, \
+    build type ${{ parameters.build_type }}"
+  pool:
+    vmImage: 'vs2017-win2016'
+
+  steps:
+  - powershell: |
+      Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
+      Write-Host "##vso[task.setvariable variable=CONDAPS1]$env:CONDA\shell\condabin\conda-hook.ps1"
+    displayName: Add conda to PATH
+
+  - ${{ if eq(parameters.arch, '32') }}:
+      - powershell: |
+          Write-Host "##vso[task.setvariable variable=CONDA_FORCE_32BIT]1"
+
+  - script: |
+      conda create --yes --quiet --name chihiro
+    displayName: Create Anaconda environment
+
+  - script: |
+      call activate chihiro
+      conda install --yes --quiet --name chihiro openssl"${{ parameters.openssl_version }}"
+    displayName: Install Anaconda packages
+
+https://github.com/sqlcipher/sqlcipher/archive/v4.4.0.zip
+
+  - powershell: |
+      $sha256 = "0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148"
+      $url = "https://github.com/sqlcipher/sqlcipher/archive/v4.4.0.tar.gz"
+      Invoke-WebRequest -OutFile "source.tar.gz.tmp" -Uri "$url"
+
+      if ((Get-FileHash "source.tar.gz.tmp" -Algorithm SHA256).Hash -eq $sha256) {
+         Rename-Item "source.tar.gz.tmp" "source.tar.gz"
+      } else {
+         "Hash check failed" | Write-Debug
+         Exit 1
+      }
+    displayName: Download sources
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: 'source.tar.gz'
+      destinationFolder: 'tmp-ssl'
+      cleanDestinationFolder: true
+    displayName: Extract
+
+  - powershell: |
+      Move-Item -Path tmp-ssl\sqlcipher-*\* -Destination .
+    displayName: Rename
+
+  # - script: |
+  #     call activate chihiro
+  #     cmake -LA || cd .
+  #   displayName: List compile options
+
+  - script: |
+      call activate chihiro
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
+      set CC=cl.exe
+      set CXX=cl.exe
+      set OPTS=\
+        -DSQLITE_TEMP_STORE=2 \
+        -DSQLITE_HAS_CODEC=1 \
+        -DSQLITE_ENABLE_COLUMN_METADATA \
+        -DSQLITE_ENABLE_FTS3 \
+        -DSQLITE_ENABLE_FTS3_PARENTHESIS \
+        -DSQLITE_ENABLE_FTS4 \
+        -DSQLITE_ENABLE_FTS5 \
+        -DSQLITE_ENABLE_JSON1 \
+        -DSQLITE_ENABLE_LOAD_EXTENSION \
+        -DSQLITE_ENABLE_RTREE \
+        -DSQLITE_ENABLE_STAT4 \
+        -DSQLITE_ENABLE_UPDATE_DELETE_LIMIT \
+        -DSQLITE_SOUNDEX \
+        -DSQLITE_TEMP_STORE=3 \
+        -DSQLITE_USE_URI \
+        -O2
+
+      nmake /f makefile.msc sqlite3.c sqlite3.lib sqlite3.dll NO_TCL=1
+    displayName: Build sqlcipher
+
+  - script: |
+      dir /a-D /S /B build
+    displayName: List built files
+
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: '$(Build.SourcesDirectory)'
+      contents: "*?(.exe|.dll|.pdb|.lib|.exp|.manifest)"
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      flattenFolders: true
+    displayName: Copy files to artifact staging directory
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: "$(buildname)"
+    displayName: Publish build artifacts
+
+  # - powershell: |
+  #     . $Env:CONDAPS1
+  #     conda activate chihiro
+  #     New-Item -Name build -ItemType directory
+  #     cmake -G "NMake Makefiles" -B build -DCMAKE_BUILD_TYPE=Release
+  #     cmake --build build
