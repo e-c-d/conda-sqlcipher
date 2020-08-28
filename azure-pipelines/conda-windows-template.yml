@@ -119,7 +119,7 @@ jobs:
       nmake /f ..\makefile.msc sqlite3.c TOP=.. %NMAKE_OPTS%
       nmake /f ..\makefile.msc sqlite3.dll TOP=.. %NMAKE_OPTS%
       nmake /f ..\makefile.msc sqlite3.exe TOP=.. %NMAKE_OPTS%
-      nmake /f ..\makefile.msc test TOP=.. %NMAKE_OPTS%
+      rem nmake /f ..\makefile.msc test TOP=.. %NMAKE_OPTS%
     displayName: Build sqlcipher
 
   - script: |
