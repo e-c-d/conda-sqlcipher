@@ -112,7 +112,7 @@ jobs:
         -DSQLITE_TEMP_STORE=3 ^
         -DSQLITE_USE_URI=1 ^
         -I%CONDA_PREFIX%\Library\include
-      set NMAKE_OPTS=NO_TCL=1 USE_CRT_DLL=1 WIN32HEAP=1 CORE_LINK_DEP=^"sqlite3.def libeay32.dll^"
+      set NMAKE_OPTS=NO_TCL=1 USE_CRT_DLL=1 WIN32HEAP=1 CORE_LINK_DEP=^"sqlite3.def libeay32.lib^"
 
       nmake /f ..\makefile.msc sqlite3.c TOP=.. %NMAKE_OPTS%
       nmake /f ..\makefile.msc sqlite3.dll TOP=.. %NMAKE_OPTS%
