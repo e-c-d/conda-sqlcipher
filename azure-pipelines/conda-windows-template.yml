@@ -117,7 +117,7 @@ jobs:
         -DSQLITE_SOUNDEX ^
         -DSQLITE_TEMP_STORE=3 ^
         -DSQLITE_USE_URI
-      set NMAKE_OPTS=NO_TCL=1
+      set NMAKE_OPTS=NO_TCL=1 USE_CRT_DLL=1 WIN32HEAP=1
 
       nmake /f makefile.msc sqlite3.c %NMAKE_OPTS%
       cl sqlite3.c -link -dll -out:sqlite3.dll %OPTS% -O2
