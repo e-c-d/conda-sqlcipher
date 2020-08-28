@@ -43,8 +43,6 @@ jobs:
       conda install --yes --quiet --name chihiro openssl"${{ parameters.openssl_version }}"
     displayName: Install Anaconda packages
 
-https://github.com/sqlcipher/sqlcipher/archive/v4.4.0.zip
-
   - powershell: |
       $sha256 = "0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148"
       $url = "https://github.com/sqlcipher/sqlcipher/archive/v4.4.0.tar.gz"
