@@ -43,13 +43,23 @@ jobs:
       conda install --yes --quiet --name chihiro openssl"${{ parameters.openssl_version }}"
     displayName: Install Anaconda packages
 
+  - task: Cache@2
+    inputs:
+      key: sqlcipher-0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148
+      path: sqlcipher.tar.gz
+    displayName: Source cache
+
   - powershell: |
       $sha256 = "0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148"
       $url = "https://github.com/sqlcipher/sqlcipher/archive/v4.4.0.tar.gz"
-      Invoke-WebRequest -OutFile "source.tar.gz.tmp" -Uri "$url"
+      if (Test-Path "sqlcipher.tar.gz") {
+         Rename-Item "sqlcipher.tar.gz" "sqlcipher.tar.gz.tmp"
+      } else {
+         Invoke-WebRequest -OutFile "sqlcipher.tar.gz.tmp" -Uri "$url"
+      }
 
-      if ((Get-FileHash "source.tar.gz.tmp" -Algorithm SHA256).Hash -eq $sha256) {
-         Rename-Item "source.tar.gz.tmp" "source.tar.gz"
+      if ((Get-FileHash "sqlcipher.tar.gz.tmp" -Algorithm SHA256).Hash -eq $sha256) {
+         Rename-Item "sqlcipher.tar.gz.tmp" "sqlcipher.tar.gz"
       } else {
          "Hash check failed" | Write-Debug
          Exit 1
@@ -62,7 +72,7 @@ jobs:
 
   - task: ExtractFiles@1
     inputs:
-      archiveFilePatterns: 'source.tar.gz'
+      archiveFilePatterns: 'sqlcipher.tar.gz'
       destinationFolder: 'tmp-source'
       cleanDestinationFolder: true
     displayName: Extract
