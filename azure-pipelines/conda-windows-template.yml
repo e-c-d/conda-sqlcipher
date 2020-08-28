@@ -93,6 +93,7 @@ jobs:
       cd sqlcipher
       md build
       cd build
+      dir /a-D /S /B %CONDA_PREFIX%
       set CC=cl.exe
       set CXX=cl.exe
       set OPTS= ^
