@@ -45,13 +45,13 @@ jobs:
 
   - task: Cache@2
     inputs:
-      key: sqlcipher-0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148
+      key: sqlcipher-4172CC6E5A79D36E178D36BD5CC467A938E08368952659BCD95ECCBAF0FA4AD4
       path: sqlcipher.tar.gz
     displayName: Source cache
 
   - powershell: |
-      $sha256 = "0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148"
-      $url = "http://github.com/sqlcipher/sqlcipher/archive/v4.4.0.tar.gz"
+      $sha256 = "4172CC6E5A79D36E178D36BD5CC467A938E08368952659BCD95ECCBAF0FA4AD4"
+      $url = "http://deb.debian.org/debian/pool/main/s/sqlcipher/sqlcipher_3.4.1.orig.tar.gz"
       if (Test-Path "sqlcipher.tar.gz") {
          Rename-Item "sqlcipher.tar.gz" "sqlcipher.tar.gz.tmp"
       } else {
