@@ -59,12 +59,12 @@ jobs:
   - task: ExtractFiles@1
     inputs:
       archiveFilePatterns: 'source.tar.gz'
-      destinationFolder: 'tmp-ssl'
+      destinationFolder: 'tmp-source'
       cleanDestinationFolder: true
     displayName: Extract
 
   - powershell: |
-      Move-Item -Path tmp-ssl\sqlcipher-*\* -Destination .
+      Get-ChildItem -Path tmp-source\sqlcipher-*\ | Move-Item -Destination .\
     displayName: Rename
 
   # - script: |
