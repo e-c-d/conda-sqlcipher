@@ -56,6 +56,7 @@ jobs:
       $url = "http://github.com/sqlcipher/sqlcipher/archive/v4.4.0.tar.gz"
 
       $cached = "$(DOWNLOAD_CACHE_FOLDER)\sqlcipher.tar.gz"
+      New-Item -ItemType Directory -Force -Path "$(DOWNLOAD_CACHE_FOLDER)"
       if (Test-Path "$cached") {
          Copy-Item "$cached" "sqlcipher.tar.gz.tmp"
       } else {
