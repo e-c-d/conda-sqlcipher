@@ -17,7 +17,7 @@ jobs:
   variables:
     buildname: "freerdp-conda-ssl${{ parameters.openssl_version_name }}-\
       win${{ parameters.arch }}-${{ parameters.build_type }}"
-    DOWNLOAD_CACHE_FOLDER: "$(Pipeline.Workspace)\.download_cache"
+    DOWNLOAD_CACHE_FOLDER: "${{Pipeline.Workspace}}\.download_cache"
 
   displayName: "Build sqlcipher \
     with OpenSSL ${{ parameters.openssl_version_name }} \
