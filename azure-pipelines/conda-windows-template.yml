@@ -18,6 +18,8 @@ jobs:
     buildname: "freerdp-conda-ssl${{ parameters.openssl_version_name }}-\
       win${{ parameters.arch }}-${{ parameters.build_type }}"
     DOWNLOAD_CACHE_FOLDER: "$(Pipeline.Workspace)/.download_cache"
+    SQLCIPHER_SHA256: "0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148"
+    SQLCIPHER_URL: "https://github.com/sqlcipher/sqlcipher/archive/v4.4.0.tar.gz"
 
   displayName: "Build sqlcipher \
     with OpenSSL ${{ parameters.openssl_version_name }} \
@@ -47,23 +49,20 @@ jobs:
 
   - task: Cache@2
     inputs:
-      key: sqlcipher-4172CC6E5A79D36E178D36BD5CC467A938E08368952659BCD95ECCBAF0FA4AD4
+      key: "sqlcipher-$(SQLCIPHER_SHA256)"
       path: "$(DOWNLOAD_CACHE_FOLDER)"
     displayName: Source cache
 
   - powershell: |
-      $sha256 = "0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148"
-      $url = "http://github.com/sqlcipher/sqlcipher/archive/v4.4.0.tar.gz"
-
       $cached = "$(DOWNLOAD_CACHE_FOLDER)\sqlcipher.tar.gz"
       New-Item -ItemType Directory -Force -Path "$(DOWNLOAD_CACHE_FOLDER)"
       if (Test-Path "$cached") {
          Copy-Item "$cached" "sqlcipher.tar.gz.tmp"
       } else {
-         Invoke-WebRequest -OutFile "sqlcipher.tar.gz.tmp" -Uri "$url"
+         Invoke-WebRequest -OutFile "sqlcipher.tar.gz.tmp" -Uri "$(SQLCIPHER_URL)"
       }
 
-      if ((Get-FileHash "sqlcipher.tar.gz.tmp" -Algorithm SHA256).Hash -eq $sha256) {
+      if ((Get-FileHash "sqlcipher.tar.gz.tmp" -Algorithm SHA256).Hash -eq "$(SQLCIPHER_SHA256)") {
          Rename-Item "sqlcipher.tar.gz.tmp" "sqlcipher.tar.gz"
          Copy-Item "sqlcipher.tar.gz" $cached
       } else {
@@ -72,10 +71,6 @@ jobs:
       }
     displayName: Download sources
 
-  # - script: |
-  #     dir /a-D /S /B .
-  #   displayName: List files 1
-
   # - task: ExtractFiles@1
   #   inputs:
   #     archiveFilePatterns: 'sqlcipher.tar.gz'
@@ -83,8 +78,12 @@ jobs:
   #     cleanDestinationFolder: true
   #   displayName: Extract
 
+  # - script: |
+  #     dir /a-D /S /B .
+  #   displayName: List files 1
+
   # - powershell: |
-  #     Get-ChildItem -Path tmp-source\sqlcipher-*\* | Move-Item -Destination .\
+  #     Get-ChildItem -Path tmp-source\sqlcipher-* | Move-Item -Destination sqlcipher
   #   displayName: Rename
 
   # - script: |
