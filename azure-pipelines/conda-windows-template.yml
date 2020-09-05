@@ -87,6 +87,14 @@ jobs:
   #     cmake -LA || cd .
   #   displayName: List compile options
 
+  - ${{ if eq(parameters.openssl_version_name, '1_0') }}:
+      - powershell: |
+          Write-Host "##vso[task.setvariable variable=NMAKE_LTLIBS]libeay32.lib ssleay32.lib"
+
+  - ${{ if eq(parameters.openssl_version_name, '1_1') }}:
+      - powershell: |
+          Write-Host "##vso[task.setvariable variable=NMAKE_LTLIBS]libcrypto.lib libssl.lib"
+
   - script: |
       call activate chihiro
       call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
@@ -114,7 +122,7 @@ jobs:
 
       set NMAKE_OPTS=NO_TCL=1 USE_CRT_DLL=1 WIN32HEAP=1 ^
         LTLIBPATHS=^"/LIBPATH:%CONDA_PREFIX%\Library\lib^" ^
-        LTLIBS=^"libeay32.lib ssleay32.lib^"
+        LTLIBS=^"%NMAKE_LTLIBS%^"
 
       nmake /f ..\makefile.msc sqlite3.c TOP=.. %NMAKE_OPTS%
       nmake /f ..\makefile.msc sqlite3.dll TOP=.. %NMAKE_OPTS%
