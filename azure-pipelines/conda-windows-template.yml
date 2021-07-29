@@ -97,7 +97,7 @@ jobs:
 
   - script: |
       call activate chihiro
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
       cd sqlcipher
       md build
       cd build
