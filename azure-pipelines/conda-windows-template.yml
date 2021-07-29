@@ -18,15 +18,15 @@ jobs:
     buildname: "sqlcipher-conda-ssl${{ parameters.openssl_version_name }}-\
       win${{ parameters.arch }}-${{ parameters.build_type }}"
     DOWNLOAD_CACHE_FOLDER: "$(Pipeline.Workspace)/.download_cache"
-    SQLCIPHER_SHA256: "0924B2AE1079717954498BDA78A30DE20CE2A6083076B16214A711567821D148"
-    SQLCIPHER_URL: "https://github.com/sqlcipher/sqlcipher/archive/v4.4.0.tar.gz"
+    SQLCIPHER_SHA512: "D80177CF658C145F7328BAFAC14BC2779AFA463FC94EF0A5E99B6654CF2EECE3088AC296949130E7263F52948913FFEAC253C47E33D91816E90CAF1788301A9A"
+    SQLCIPHER_URL: "https://github.com/sqlcipher/sqlcipher/archive/v4.4.3.zip"
 
   displayName: "Build sqlcipher \
     with OpenSSL ${{ parameters.openssl_version_name }} \
     for architecture ${{ parameters.arch }}, \
     build type ${{ parameters.build_type }}"
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-2019'
 
   steps:
   - powershell: |
@@ -49,7 +49,7 @@ jobs:
 
   - task: Cache@2
     inputs:
-      key: "sqlcipher-$(SQLCIPHER_SHA256)"
+      key: "sqlcipher-$(SQLCIPHER_SHA512)"
       path: "$(DOWNLOAD_CACHE_FOLDER)"
     displayName: Source cache
 
@@ -62,7 +62,7 @@ jobs:
          Invoke-WebRequest -OutFile "sqlcipher.tar.gz.tmp" -Uri "$(SQLCIPHER_URL)"
       }
 
-      if ((Get-FileHash "sqlcipher.tar.gz.tmp" -Algorithm SHA256).Hash -eq "$(SQLCIPHER_SHA256)") {
+      if ((Get-FileHash "sqlcipher.tar.gz.tmp" -Algorithm SHA512).Hash -eq "$(SQLCIPHER_SHA512)") {
          Rename-Item "sqlcipher.tar.gz.tmp" "sqlcipher.tar.gz"
          Copy-Item "sqlcipher.tar.gz" $cached
       } else {
